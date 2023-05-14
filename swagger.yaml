@@ -1,0 +1,348 @@
+openapi: 3.0.3
+info:
+  title: Swagger Notes - OpenAPI 3.0
+  description: This is a Notes Server based on the OpenAPI 3.0 specification.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: https://localhost/api/notes
+tags:
+  - name: notes
+    description: Operations about notes
+  - name: category
+    description: Notes categories
+paths:
+  /notes:
+    post:
+      tags:
+        - notes
+      summary: Add a new note
+      description: Add a new note
+      operationId: addNote
+      requestBody:
+        description: Create a new note
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Note'
+        required: true
+      responses:
+        '200':
+          description: Note created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '405':
+          description: Invalid input
+    get:
+      tags:
+        - notes
+      summary: Get notes
+      description: Returns all notes for the current user. Public notes are returned when the user is not authenticated.
+      operationId: getNotes
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: offset
+          in: query
+          description: How many items to skip
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+  /notes/{noteId}:
+    get:
+      tags:
+        - notes
+      summary: Find note by ID
+      description: Returns a single note
+      operationId: getNoteById
+      parameters:
+        - name: noteId
+          in: path
+          description: ID of note to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '404':
+          description: Note not found
+    delete:
+      tags:
+        - notes
+      summary: Deletes a note
+      description: Deletes a note
+      operationId: deleteNote
+      parameters:
+        - name: noteId
+          in: path
+          description: Note id to delete
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Note not found
+    put:
+      tags:
+        - notes
+      summary: Update an existing note
+      description: Update an existing note
+      operationId: updateNote
+      parameters:
+        - name: noteId
+          in: path
+          description: ID of note to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: Update an existing note in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Note'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Note not found
+        '405':
+          description: Validation exception
+  /categories:
+    get:
+      tags:
+        - category
+      summary: Returns all note categories for current user
+      description: Returns all note categories for current user
+      operationId: getCategories
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: offset
+          in: query
+          description: How many items to skip
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Category not found
+  /categories/{categoryId}:
+    get:
+      tags:
+        - notes
+      summary: Returns all notes by current user with category
+      description: Returns all notes by current user with category
+      operationId: getNotesByCategory
+      parameters:
+        - name: categoryId
+          in: path
+          description: ID of category to return notes
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '404':
+          description: Category not found
+    delete:
+      tags:
+        - category
+      summary: Deletes all notes by current user with category
+      description: Deletes all notes by current user with category
+      operationId: deleteCategory
+      parameters:
+        - name: categoryId
+          in: path
+          description: Category id to delete
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Deleted notes with category
+        '404':
+          description: Category not found
+  /users:
+    post:
+      tags:
+        - user
+      summary: Create user
+      description: Adds a new user who can submit notes tied to their account
+      operationId: createUser
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: Successfully added user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/{username}:
+    get:
+      tags:
+        - user
+      summary: Get user by user name
+      description: This can only be done by the logged in user.
+      operationId: getUserByName
+      parameters:
+        - name: username
+          in: path
+          description: The username of account that needs to be fetched
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retrieve user by username
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      description: This can only be done by the logged in user.
+      operationId: deleteUser
+      parameters:
+        - name: username
+          in: path
+          description: The username of account to be deleted
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successfully deleted user and their notes
+        '401':
+          description: Unauthorized
+  /login:
+    get:
+      tags:
+        - user
+      summary: Logs user into the system using Basic Auth
+      description: Returns a 401 or 200 based on if the user is logged in
+      responses:
+        '200':
+          description: Successful login
+        '401':
+          description: Unauthorized
+  /logout:
+    get:
+      tags:
+        - user
+      summary: Logs out current logged in user session
+      description: Logs out current logged in user session
+      operationId: logoutUser
+      responses:
+        '401':
+          description: Successful logout
+components:
+  schemas:
+    Note:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        title:
+          type: string
+        content:
+          type: string
+        categories:
+          type: array
+          items:
+            type: string
+        created:
+          type: string
+          format: date-time
+        last_modified:
+          type: string
+          format: date-time
+        owner_id:
+          type: integer
+          format: int32
+    Category:
+      type: object
+      properties:
+        name:
+          type: string
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Note'
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        username:
+          type: string
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Note'
