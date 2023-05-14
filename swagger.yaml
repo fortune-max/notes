@@ -13,6 +13,10 @@ tags:
     description: Operations about notes
   - name: category
     description: Notes categories
+  - name: user
+    description: Operations about user
+  - name: auth
+    description: Operations about authentication
 paths:
   /notes:
     post:
@@ -58,6 +62,18 @@ paths:
           schema:
             type: integer
             format: int32
+        - name: category
+          in: query
+          description: Filter by category
+          required: false
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Filter by search term
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: successful operation
@@ -178,7 +194,7 @@ paths:
   /categories/{categoryId}:
     get:
       tags:
-        - notes
+        - category
       summary: Returns all notes by current user with category
       description: Returns all notes by current user with category
       operationId: getNotesByCategory
@@ -188,8 +204,7 @@ paths:
           description: ID of category to return notes
           required: true
           schema:
-            type: integer
-            format: int32
+            type: string
       responses:
         '200':
           description: successful operation
@@ -211,8 +226,7 @@ paths:
           description: Category id to delete
           required: true
           schema:
-            type: integer
-            format: int32
+            type: string
       responses:
         '204':
           description: Deleted notes with category
@@ -282,7 +296,7 @@ paths:
   /login:
     get:
       tags:
-        - user
+        - auth
       summary: Logs user into the system using Basic Auth
       description: Returns a 401 or 200 based on if the user is logged in
       responses:
@@ -293,7 +307,7 @@ paths:
   /logout:
     get:
       tags:
-        - user
+        - auth
       summary: Logs out current logged in user session
       description: Logs out current logged in user session
       operationId: logoutUser
