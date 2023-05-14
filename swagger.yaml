@@ -80,7 +80,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Note'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
   /notes/{noteId}:
     get:
       tags:
@@ -98,7 +100,7 @@ paths:
             format: int32
       responses:
         '200':
-          description: successful operation
+          description: Retrieved note
           content:
             application/json:
               schema:
@@ -120,8 +122,8 @@ paths:
             type: integer
             format: int32
       responses:
-        '400':
-          description: Invalid ID supplied
+        '204':
+          description: Deleted note
         '404':
           description: Note not found
     put:
@@ -147,17 +149,41 @@ paths:
         required: true
       responses:
         '200':
-          description: Successful operation
+          description: Note updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Note'
-        '400':
-          description: Invalid ID supplied
         '404':
           description: Note not found
-        '405':
-          description: Validation exception
+    post:
+      tags:
+        - notes
+      summary: Insert a new note with an id
+      description: Insert a new note with an id
+      operationId: insertNoteWithId
+      parameters:
+        - name: noteId
+          in: path
+          description: ID of note to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: Insert a new note with specified ID in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Note'
+        required: true
+      responses:
+        '200':
+          description: Note inserted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
   /categories:
     get:
       tags:
@@ -182,15 +208,13 @@ paths:
             format: int32
       responses:
         '200':
-          description: successful operation
+          description: Returns all note categories for current user
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Category not found
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
   /categories/{categoryId}:
     get:
       tags:
