@@ -1,0 +1,30 @@
+{
+  "name": "notes",
+  "version": "1.0.0",
+  "description": "CLI-friendly interface for managing notes/pastes",
+  "main": "my-express.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fortune-max/notes.git"
+  },
+  "author": "fortune-max",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fortune-max/notes/issues"
+  },
+  "homepage": "https://github.com/fortune-max/notes#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.40.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "2.8.8"
+  }
+}
