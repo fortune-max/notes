@@ -18,17 +18,58 @@ In the command line, simply prefix the URL with the username and password separa
 curl USER:PASS@someurl.com/notes
 ```
 
+## Examples - Most common use-case
+
+e.g. Create a new note, specifying any fields you want (content is required)
+
+```bash
+curl -X POST -d '{"title":"My Note","content":"This is my note"}' -H "Content-Type: application/json" someurl.com/notes
+```
+
+More convenient way to create a new note using pipes
+(Just specifying the note content, API picks an available noteId and returns it as response)
+
+```bash
+echo My notes content | curl -F 'f:1=<-' someurl.com/notes
+# Created Note! ID: 12
+
+curl someurl.com/notes/12
+# My notes content
+
+curl someurl.com/notes/12?json=true
+# {"noteId": "12", "title":null, "content":"My notes content", "categories":["default"], "username":"public", "created":"2019-01-01T00:00:00Z", "last_modified":"2019-01-01T00:00:00Z"}
+
+cat somefile | curl -F 'f:1=<-' someurl.com/notes
+# Created Note! ID: 29
+```
+
+Or specifying the noteId
+
+```bash
+echo This is my MOTD with noteId of MOTD | curl -F 'f:1=<-' someurl.com/notes/motd
+
+# To print out note
+curl someurl.com/notes/motd
+```
+
+Viewing a note
+
+```bash
+curl someurl.com/notes/motd
+curl someurl.com/notes/1
+```
+
 ## Endpoints
 
 ### /notes
 
 #### GET
 
-Returns a list of notes. If the user is authenticated, it will return both public and private notes. If the user is not authenticated, it will only return public notes.
+Returns a list of notes for the current user. If the user is not authenticated, it will return the list of public notes for the `public` user.
 
 #### POST
 
-Creates a new note using the JSON data in the request body.
+Creates a new note using the JSON data in the request body. Returns ID of created note as response
 
 ### /notes/{id}
 
@@ -36,9 +77,16 @@ Creates a new note using the JSON data in the request body.
 
 Returns the note with the given ID.
 
+#### POST
+Inserts a note with the given ID using the JSON data in the request body.
+
 #### PUT
 
 Updates the note with the given ID using the JSON data in the request body.
+
+#### PATCH
+
+Appends the note with the given ID using the JSON data in the request body.
 
 #### DELETE
 
@@ -60,16 +108,13 @@ Returns a list of all notes in the given category.
 
 Deletes all notes in the given category.
 
-### /users
+### /register
 
 #### POST
 
-Creates a new user using the JSON data in the request body.
+Creates a new user using the credentials provided with Basic Authentication.
 
 ### /users/{username}
-
-#### GET
-Get the user with the given username. Must be authenticated as user.
 
 #### DELETE
 Delete the user with the given username. Must be authenticated as user.
@@ -84,3 +129,6 @@ Logs the user in using the username and password in the Authorization header.
 #### GET
 Logs the user out.
 
+## Next steps
+
+- Make a GUI for notes. For now the app is primarily used through the command line so this is not a priority for me as I am the primary user of the app. As things mature, it will be something I will explore.
