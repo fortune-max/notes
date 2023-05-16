@@ -8,5 +8,4 @@ export default {
   testMatch: [
     "**/__test__/*.test.js",
   ],
-  testTimeout: 50,
 };
