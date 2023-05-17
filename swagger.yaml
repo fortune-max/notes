@@ -19,12 +19,32 @@ tags:
     description: Operations about authentication
 paths:
   /notes:
+    get:
+      tags:
+        - notes
+      summary: Get notes
+      description: Returns all notes for the current user. Public notes are returned when the user is not authenticated.
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
     post:
       tags:
         - notes
       summary: Add a new note
       description: Add a new note
-      operationId: addNote
+      parameters:
+        - name: json
+          in: query
+          description: If to return response as JSON object or not
+          required: false
+          schema:
+            type: boolean
       requestBody:
         description: Create a new note
         content:
@@ -39,57 +59,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Note'
-        '405':
+        '400':
           description: Invalid input
-    get:
-      tags:
-        - notes
-      summary: Get notes
-      description: Returns all notes for the current user. Public notes are returned when the user is not authenticated.
-      operationId: getNotes
-      parameters:
-        - name: limit
-          in: query
-          description: How many items to return at one time (max 100)
-          required: false
-          schema:
-            type: integer
-            format: int32
-        - name: offset
-          in: query
-          description: How many items to skip
-          required: false
-          schema:
-            type: integer
-            format: int32
-        - name: category
-          in: query
-          description: Filter by category
-          required: false
-          schema:
-            type: string
-        - name: search
-          in: query
-          description: Filter by search term
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Note'
   /notes/{noteId}:
     get:
       tags:
         - notes
       summary: Find note by ID
       description: Returns a single note
-      operationId: getNoteById
       parameters:
         - name: noteId
           in: path
@@ -98,58 +75,15 @@ paths:
           schema:
             type: integer
             format: int32
+        - name: json
+          in: query
+          description: If to return response as JSON object or not
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: Retrieved note
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Note'
-        '404':
-          description: Note not found
-    delete:
-      tags:
-        - notes
-      summary: Deletes a note
-      description: Deletes a note
-      operationId: deleteNote
-      parameters:
-        - name: noteId
-          in: path
-          description: Note id to delete
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '204':
-          description: Deleted note
-        '404':
-          description: Note not found
-    put:
-      tags:
-        - notes
-      summary: Update an existing note
-      description: Update an existing note
-      operationId: updateNote
-      parameters:
-        - name: noteId
-          in: path
-          description: ID of note to return
-          required: true
-          schema:
-            type: integer
-            format: int32
-      requestBody:
-        description: Update an existing note in the store
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Note'
-        required: true
-      responses:
-        '200':
-          description: Note updated
           content:
             application/json:
               schema:
@@ -161,7 +95,6 @@ paths:
         - notes
       summary: Insert a new note with an id
       description: Insert a new note with an id
-      operationId: insertNoteWithId
       parameters:
         - name: noteId
           in: path
@@ -184,28 +117,108 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Note'
+        '400':
+          description: Invalid input
+    put:
+      tags:
+        - notes
+      summary: Update an existing note
+      description: Update an existing note
+      parameters:
+        - name: noteId
+          in: path
+          description: ID of note to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: json
+          in: query
+          description: If to return response as JSON object or not
+          required: false
+          schema:
+            type: boolean
+      requestBody:
+        description: Update an existing note in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Note'
+        required: true
+      responses:
+        '200':
+          description: Note updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '404':
+          description: Note not found
+    patch:
+      tags:
+        - notes
+      summary: Append to an existing note
+      description: Append to an existing note
+      parameters:
+        - name: noteId
+          in: path
+          description: ID of note to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: json
+          in: query
+          description: If to return response as JSON object or not
+          required: false
+          schema:
+            type: boolean
+      requestBody:
+        description: Update an existing note in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Note'
+        required: true
+      responses:
+        '200':
+          description: Note updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '404':
+          description: Note not found
+    delete:
+      tags:
+        - notes
+      summary: Deletes a note
+      description: Deletes a note
+      parameters:
+        - name: noteId
+          in: path
+          description: Note id to delete
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: json
+          in: query
+          description: If to return response as JSON object or not
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Deleted note
+        '404':
+          description: Note not found
   /categories:
     get:
       tags:
         - category
       summary: Returns all note categories for current user
       description: Returns all note categories for current user
-      operationId: getCategories
-      parameters:
-        - name: limit
-          in: query
-          description: How many items to return at one time (max 100)
-          required: false
-          schema:
-            type: integer
-            format: int32
-        - name: offset
-          in: query
-          description: How many items to skip
-          required: false
-          schema:
-            type: integer
-            format: int32
       responses:
         '200':
           description: Returns all note categories for current user
@@ -214,14 +227,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Category'
+                  type: string
   /categories/{categoryId}:
     get:
       tags:
         - category
       summary: Returns all notes by current user with category
       description: Returns all notes by current user with category
-      operationId: getNotesByCategory
       parameters:
         - name: categoryId
           in: path
@@ -235,15 +247,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Note'
-        '404':
-          description: Category not found
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
     delete:
       tags:
         - category
       summary: Deletes all notes by current user with category
       description: Deletes all notes by current user with category
-      operationId: deleteCategory
       parameters:
         - name: categoryId
           in: path
@@ -252,17 +263,16 @@ paths:
           schema:
             type: string
       responses:
-        '204':
+        '200':
           description: Deleted notes with category
         '404':
           description: Category not found
-  /users:
+  /register:
     post:
       tags:
         - user
       summary: Create user
       description: Adds a new user who can submit notes tied to their account
-      operationId: createUser
       requestBody:
         description: Created user object
         content:
@@ -276,35 +286,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        '409':
+          description: User already exists
+        '400':
+          description: Bad request, missing username and/or password
   /users/{username}:
-    get:
-      tags:
-        - user
-      summary: Get user by user name
-      description: This can only be done by the logged in user.
-      operationId: getUserByName
-      parameters:
-        - name: username
-          in: path
-          description: The username of account that needs to be fetched
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Retrieve user by username
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          description: Unauthorized
     delete:
       tags:
         - user
       summary: Delete user
       description: This can only be done by the logged in user.
-      operationId: deleteUser
       parameters:
         - name: username
           in: path
@@ -334,7 +325,6 @@ paths:
         - auth
       summary: Logs out current logged in user session
       description: Logs out current logged in user session
-      operationId: logoutUser
       responses:
         '401':
           description: Successful logout
@@ -343,7 +333,7 @@ components:
     Note:
       type: object
       properties:
-        id:
+        noteId:
           type: integer
           format: int32
         title:
@@ -360,27 +350,18 @@ components:
         last_modified:
           type: string
           format: date-time
-        owner_id:
-          type: integer
-          format: int32
-    Category:
-      type: object
-      properties:
-        name:
+        username:
           type: string
-        notes:
-          type: array
-          items:
-            $ref: '#/components/schemas/Note'
+          format: int32
+      required:
+        - content
     User:
       type: object
       properties:
-        id:
-          type: integer
-          format: int32
         username:
           type: string
-        notes:
-          type: array
-          items:
-            $ref: '#/components/schemas/Note'
+        password:
+          type: string
+      required:
+        - username
+        - password
