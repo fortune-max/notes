@@ -3,16 +3,13 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 
 mongoose.set('bufferCommands', false);
 
-let mongoServer;
+let mongoServer: MongoMemoryServer;
 
 export async function connect() {
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
 
-  await mongoose.connect(mongoUri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await mongoose.connect(mongoUri);
 }
 
 export async function disconnect() {

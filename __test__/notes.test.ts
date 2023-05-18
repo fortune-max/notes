@@ -1,11 +1,11 @@
 import request from 'supertest';
-import app from '../src/my-express.js';
-import { Note } from '../src/models/note.model.js';
-import { User } from '../src/models/user.model.js';
-import { connect, disconnect } from './mockServer.js';
+import app from '../src/my-express';
+import { Note } from '../src/models/note.model';
+import { User } from '../src/models/user.model';
+import { connect, disconnect } from './mockServer';
 import notesFixture from './fixtures/notes.fixture.json';
 import usersFixture from './fixtures/users.fixture.json';
-import { TEST_USER, TEST_PASSWORD } from '../src/constants.js';
+import { TEST_USER, TEST_PASSWORD } from '../src/constants';
 
 describe('Test /notes endpoint', () => {
   beforeEach(async () => {
@@ -56,10 +56,11 @@ describe('Test /notes endpoint', () => {
       .send({ title: 'test', content: 'test content' })
       .then((response) => {
         expect(response.statusCode).toBe(200);
-        const noteId = response.text.split(' ').pop().trim();
+        const noteId = response.text.split(' ').pop()!.trim();
         Note.findOne({ noteId }).then((note) => {
-          expect(note.title).toBe('test');
-          expect(note.content).toBe('test content');
+          expect(note).not.toBeNull();
+          expect(note?.title).toBe('test');
+          expect(note?.content).toBe('test content');
           done();
         });
       });
@@ -83,8 +84,9 @@ describe('Test /notes endpoint', () => {
       .then((response) => {
         expect(response.statusCode).toBe(200);
         Note.findOne({ noteId }).then((note) => {
-          expect(note.title).toBe('test');
-          expect(note.content).toBe('test content');
+          expect(note).not.toBeNull();
+          expect(note?.title).toBe('test');
+          expect(note?.content).toBe('test content');
           done();
         });
       });
@@ -109,8 +111,9 @@ describe('Test /notes endpoint', () => {
       .then((response) => {
         expect(response.statusCode).toBe(200);
         Note.findOne({ noteId }).then((note) => {
-          expect(note.title).toBe('test upd');
-          expect(note.content).toBe('test content upd');
+          expect(note).not.toBeNull();
+          expect(note?.title).toBe('test upd');
+          expect(note?.content).toBe('test content upd');
           done();
         });
       });
@@ -135,8 +138,9 @@ describe('Test /notes endpoint', () => {
       .then((response) => {
         expect(response.statusCode).toBe(200);
         Note.findOne({ noteId }).then((note) => {
-          expect(note.title).toBe('test title 1');
-          expect(note.content).toBe('test content 1test content upd');
+          expect(note).not.toBeNull();
+          expect(note?.title).toBe('test title 1');
+          expect(note?.content).toBe('test content 1test content upd');
           done();
         });
       });
@@ -255,10 +259,11 @@ describe('Test json=true query param', () => {
         const responseJSON = JSON.parse(response.text);
         expect(response.statusCode).toBe(200);
         Note.findOne({ noteId: responseJSON.noteId }).then((note) => {
-          expect(note.title).toBe(responseJSON.title);
-          expect(note.content).toBe(responseJSON.content);
-          expect(note.title).toBe('test title 1');
-          expect(note.content).toBe('test content 1');
+          expect(note).not.toBeNull();
+          expect(note?.title).toBe(responseJSON.title);
+          expect(note?.content).toBe(responseJSON.content);
+          expect(note?.title).toBe('test title 1');
+          expect(note?.content).toBe('test content 1');
           done();
         });
       });
@@ -272,10 +277,11 @@ describe('Test json=true query param', () => {
         expect(response.statusCode).toBe(200);
         const responseJSON = JSON.parse(response.text);
         Note.findOne({ noteId: responseJSON.noteId }).then((note) => {
-          expect(note.title).toBe(responseJSON.title);
-          expect(note.content).toBe(responseJSON.content);
-          expect(note.title).toBe('test');
-          expect(note.content).toBe('test content');
+          expect(note).not.toBeNull();
+          expect(note?.title).toBe(responseJSON.title);
+          expect(note?.content).toBe(responseJSON.content);
+          expect(note?.title).toBe('test');
+          expect(note?.content).toBe('test content');
           done();
         });
       });
@@ -289,10 +295,11 @@ describe('Test json=true query param', () => {
         expect(response.statusCode).toBe(200);
         const responseJSON = JSON.parse(response.text);
         Note.findOne({ noteId: responseJSON.noteId }).then((note) => {
-          expect(note.title).toBe(responseJSON.title);
-          expect(note.content).toBe(responseJSON.content);
-          expect(note.title).toBe('test');
-          expect(note.content).toBe('test content');
+          expect(note).not.toBeNull();
+          expect(note?.title).toBe(responseJSON.title);
+          expect(note?.content).toBe(responseJSON.content);
+          expect(note?.title).toBe('test');
+          expect(note?.content).toBe('test content');
           done();
         });
       });
@@ -306,10 +313,11 @@ describe('Test json=true query param', () => {
         expect(response.statusCode).toBe(200);
         const responseJSON = JSON.parse(response.text);
         Note.findOne({ noteId: responseJSON.noteId }).then((note) => {
-          expect(note.title).toBe(responseJSON.title);
-          expect(note.content).toBe(responseJSON.content);
-          expect(note.title).toBe('test upd');
-          expect(note.content).toBe('test content upd');
+          expect(note).not.toBeNull();
+          expect(note?.title).toBe(responseJSON.title);
+          expect(note?.content).toBe(responseJSON.content);
+          expect(note?.title).toBe('test upd');
+          expect(note?.content).toBe('test content upd');
           done();
         });
       });
@@ -323,10 +331,11 @@ describe('Test json=true query param', () => {
         expect(response.statusCode).toBe(200);
         const responseJSON = JSON.parse(response.text);
         Note.findOne({ noteId: responseJSON.noteId }).then((note) => {
-          expect(note.title).toBe(responseJSON.title);
-          expect(note.content).toBe(responseJSON.content);
-          expect(note.title).toBe('test title 1');
-          expect(note.content).toBe('test content 1test content upd');
+          expect(note).not.toBeNull();
+          expect(note?.title).toBe(responseJSON.title);
+          expect(note?.content).toBe(responseJSON.content);
+          expect(note?.title).toBe('test title 1');
+          expect(note?.content).toBe('test content 1test content upd');
           done();
         });
       });
@@ -481,10 +490,11 @@ describe('Try other POST Content-Types', () => {
       .send('test content')
       .then((response) => {
         expect(response.statusCode).toBe(200);
-        const noteId = response.text.split(' ').pop().trim();
+        const noteId = response.text.split(' ').pop()!.trim();
         Note.findOne({ noteId }).then((note) => {
-          expect(note.title).toBe(null);
-          expect(note.content).toBe('test content');
+          expect(note).not.toBeNull();
+          expect(note!.title).toBe(null);
+          expect(note!.content).toBe('test content');
           done();
         });
       });
@@ -497,10 +507,11 @@ describe('Try other POST Content-Types', () => {
       .send('title=test&content=test content')
       .then((response) => {
         expect(response.statusCode).toBe(200);
-        const noteId = response.text.split(' ').pop().trim();
+        const noteId = response.text.split(' ').pop()!.trim();
         Note.findOne({ noteId }).then((note) => {
-          expect(note.title).toBe('test');
-          expect(note.content).toBe('test content');
+          expect(note).not.toBeNull();
+          expect(note?.title).toBe('test');
+          expect(note?.content).toBe('test content');
           done();
         });
       });
@@ -513,10 +524,11 @@ describe('Try other POST Content-Types', () => {
       .field('f:1', 'test content')
       .then((response) => {
         expect(response.statusCode).toBe(200);
-        const noteId = response.text.split(' ').pop().trim();
+        const noteId = response.text.split(' ').pop()!.trim();
         Note.findOne({ noteId }).then((note) => {
-          expect(note.title).toBe(null);
-          expect(note.content).toBe('test content');
+          expect(note).not.toBeNull();
+          expect(note?.title).toBe(null);
+          expect(note?.content).toBe('test content');
           done();
         });
       });

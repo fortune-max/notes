@@ -1,12 +1,12 @@
 import os from 'os';
-import bcrypt from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 import express from 'express';
-import { Note } from './models/note.model.js';
-import { User } from './models/user.model.js';
+import { Note } from './models/note.model';
+import { User } from './models/user.model';
 import formData from "express-form-data";
 import bodyParser from 'body-parser';
-import { parseNote, getAvailableNoteId } from './utils.js';
-import { DEFAULT_USER, DEFAULT_PASSWORD, SALT_ROUNDS } from './constants.js';
+import { parseNote, getAvailableNoteId } from './utils';
+import { DEFAULT_USER, DEFAULT_PASSWORD, SALT_ROUNDS } from './constants';
 
 const app = express();
 
@@ -32,7 +32,7 @@ app.use(formData.stream());
 app.use(formData.union());
 
 // add basic auth
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   const auth = req.headers.authorization;
   if (!auth){
     req.headers.authorization = JSON.stringify({ username: DEFAULT_USER, password: DEFAULT_PASSWORD });
@@ -43,16 +43,15 @@ app.use((req, res, next) => {
     req.headers.authorization = JSON.stringify({ username, password});
     return next();
   }
-  bcrypt.hash(password, SALT_ROUNDS).then((err, hash) => {
-    User.findOne({ username }).then((user) => {
-      if (!user)
+  const hashedPassword = await hash(password, SALT_ROUNDS);
+  User.findOne({ username }).then((user) => {
+    if (!user)
+      return res.status(401).send('Invalid Credentials!\n');
+    compare(password, user.password).then((result) => {
+      if (!result)
         return res.status(401).send('Invalid Credentials!\n');
-      bcrypt.compare(password, user.password).then((result) => {
-        if (!result)
-          return res.status(401).send('Invalid Credentials!\n');
-        req.headers.authorization = JSON.stringify({ username, password: hash });
-        next();
-      });
+      req.headers.authorization = JSON.stringify({ username, password: hashedPassword });
+      next();
     });
   });
 });
@@ -61,7 +60,7 @@ app.use((req, res, next) => {
 
 // /notes endpoints
 app.get('/notes', async (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   const query = { username };
   Note.find(query).select({ _id: 0, __v: 0})
     .then((notes) => {
@@ -71,7 +70,7 @@ app.get('/notes', async (req, res) => {
 });
 
 app.get('/notes/:noteId', (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   const { noteId } = req.params;
   const { json } = req.query;
   const query = { username, noteId };
@@ -86,7 +85,7 @@ app.get('/notes/:noteId', (req, res) => {
 });
 
 app.post('/notes', async (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   const { json } = req.query;
   const noteObj = parseNote(req);
   const noteId = await getAvailableNoteId(username);
@@ -105,7 +104,7 @@ app.post('/notes', async (req, res) => {
 });
 
 app.post('/notes/:noteId', (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   const { noteId } = req.params;
   const { json } = req.query;
   const noteObj = parseNote(req);
@@ -125,7 +124,7 @@ app.post('/notes/:noteId', (req, res) => {
 });
 
 app.put('/notes/:noteId', (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   const { noteId } = req.params;
   const { json } = req.query;
   const noteObj = parseNote(req);
@@ -139,16 +138,19 @@ app.put('/notes/:noteId', (req, res) => {
       note.categories = noteObj.categories || note.categories;
       note.last_modified = new Date();
       note.save().then((note) => {
-        note = note.toObject();
-        delete note._id;
-        delete note.__v;
+        note = note.toObject({
+          transform: (doc, ret) => {
+            delete ret._id;
+            delete ret.__v;
+          }
+        });
         res.send(json ? JSON.stringify(note, null, 4) : 'Note Updated!\n');
       });
     });
 });
 
 app.patch('/notes/:noteId', (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   const { noteId } = req.params;
   const { json } = req.query;
   const noteObj = parseNote(req);
@@ -164,16 +166,19 @@ app.patch('/notes/:noteId', (req, res) => {
     };
     note.set(updatedFields);
     note.save().then((note) => {
-      note = note.toObject();
-      delete note._id;
-      delete note.__v;
+      note = note.toObject({
+        transform: (doc, ret) => {
+          delete ret._id;
+          delete ret.__v;
+        }
+      });
       res.send(json ? JSON.stringify(note, null, 4) : 'Note Appended!\n');
     });
   });
 });
 
 app.delete('/notes/:noteId', (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   const { noteId } = req.params;
   const { json } = req.query;
   const query = { username, noteId };
@@ -187,11 +192,11 @@ app.delete('/notes/:noteId', (req, res) => {
 // /categories endpoints
 
 app.get('/categories', (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   const query = { username };
   Note.find(query).select({ _id: 0, __v: 0})
     .then((notes) => {
-      const categories = notes.reduce((acc, note) => {
+      const categories = notes.reduce((acc: string[], note) => {
         return [...new Set([...acc, ...note.categories])];
       }, []);
       res.send(JSON.stringify(categories, null, 4));
@@ -199,7 +204,7 @@ app.get('/categories', (req, res) => {
 });
 
 app.get('/categories/:categoryName', (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   const { categoryName } = req.params;
   const query = { username, categories: [categoryName] };
   Note.find(query).select({ _id: 0, __v: 0}).then((notes) => {
@@ -211,7 +216,7 @@ app.get('/categories/:categoryName', (req, res) => {
 });
 
 app.delete('/categories/:categoryName', (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   const { categoryName } = req.params;
   const query = { username, categories: [categoryName] };
   Note.deleteMany(query).select({ _id: 0, __v: 0}).then((notes) => {
@@ -223,15 +228,15 @@ app.delete('/categories/:categoryName', (req, res) => {
 
 // auth endpoints
 app.post('/register', (req, res) => {
-  const { username, password } = JSON.parse(req.headers.authorization);
+  const { username, password } = JSON.parse(req.headers.authorization!);
   if (!username || !password)
     return res.status(400).send('Bad Request, missing username or password!\n');
   const query = { username };
   User.findOne(query).then((user) => {
     if (user)
       return res.status(409).send('User already exists!\n');
-    bcrypt.hash(password, SALT_ROUNDS, (err, hash) => {
-      const newUser = new User({ username, password: hash });
+    hash(password, SALT_ROUNDS, (err, hashedPassword) => {
+      const newUser = new User({ username, password: hashedPassword });
       newUser.save().then((user) => {
         res.send(`Successfully created user ${username}!\n`);
       });
@@ -240,7 +245,7 @@ app.post('/register', (req, res) => {
 });
 
 app.delete('/users/:username', (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   if (username !== req.params.username)
     return res.status(401).send('Unauthorized!\n');
   const query = { username };
@@ -254,7 +259,7 @@ app.delete('/users/:username', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   if (username === DEFAULT_USER){
     res.set('WWW-Authenticate', 'Basic realm="401"');
     return res.status(401).send('Unauthorized!\n');
@@ -263,7 +268,7 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/logout', (req, res) => {
-  const { username } = JSON.parse(req.headers.authorization);
+  const { username } = JSON.parse(req.headers.authorization!);
   return res.status(401).send(`Successfully logged out ${username}!\n`);
 });
 
