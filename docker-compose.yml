@@ -9,4 +9,4 @@ services:
     environment:
       - MONGODB_URL=${MONGODB_URL}
     ports:
-      - 3000:3000
+      - 3000:${PORT}
