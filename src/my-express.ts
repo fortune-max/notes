@@ -9,6 +9,7 @@ import { parseNote, getAvailableNoteId } from './utils';
 import { DEFAULT_USER, DEFAULT_PASSWORD, SALT_ROUNDS } from './constants';
 
 const app = express();
+let highestNoteId = 100;
 
 // ========= MIDDLEWAREZ =========
 
@@ -88,7 +89,8 @@ app.post('/notes', async (req, res) => {
   const { username } = JSON.parse(req.headers.authorization!);
   const { json } = req.query;
   const noteObj = parseNote(req);
-  const noteId = await getAvailableNoteId(username);
+  const noteId = await getAvailableNoteId(username, highestNoteId);
+  highestNoteId = Math.max(highestNoteId, noteId);
   if (!noteObj.content)
     return res.status(400).send('Bad Request, empty note!\n');
   const newNote = {
