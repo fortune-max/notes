@@ -33,7 +33,8 @@
     "express-basic-auth": "^1.2.1",
     "express-form-data": "^2.0.22",
     "mongoose": "^7.1.1",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
