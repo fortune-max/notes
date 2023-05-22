@@ -1,0 +1,24 @@
+name: Bombard deployed server on 
+run-name: perform stress-tests on the API
+on:
+    check_suite:
+        types: [completed]
+jobs:
+    bombard-get:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "18"
+            - run: npm install
+            - run: npm run start-bombard-get
+    bombard-post:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "18"
+            - run: npm install
+            - run: npm run start-bombard-post

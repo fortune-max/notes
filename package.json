@@ -8,7 +8,11 @@
     "start:dev": "nodemon src/server.ts",
     "start": "ts-node src/server.ts",
     "lint": "eslint .",
-    "test": "jest --config=jest.config.js --coverage"
+    "test": "jest --config=jest.config.js --coverage",
+    "start-bombard-get:dev": "node __test__/my-bombard.js -u http://localhost:3000/notes -c 50 -n 200",
+    "start-bombard-post:dev": "node __test__/my-bombard.js -u http://localhost:3000/notes/12 -c 50 -n 200 -d 'This is a test note'",
+    "start-bombard-get": "node __test__/my-bombard.js -u https://notes-production-1684.up.railway.app/notes -c 50 -n 200",
+    "start-bombard-post": "node __test__/my-bombard.js -u https://notes-production-1684.up.railway.app/notes/12 -c 50 -n 200 -d 'This is a test note'"
   },
   "repository": {
     "type": "git",
