@@ -1,13 +1,11 @@
 import request from 'supertest';
 import app from '../src/my-express.js';
+import { Note } from '../src/models/note.model.js';
+import { User } from '../src/models/user.model.js';
 import { connect, disconnect } from './mockServer.js';
 import notesFixture from './fixtures/notes.fixture.json';
 import usersFixture from './fixtures/users.fixture.json';
 import { TEST_USER, TEST_PASSWORD } from '../src/constants.js';
-import mongoose from 'mongoose';
-
-const Note = mongoose.model('Note', new mongoose.Schema({}));
-const User = mongoose.model('User', new mongoose.Schema({}));
 
 describe('Test /notes endpoint', () => {
   beforeEach(async () => {
