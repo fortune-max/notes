@@ -59,6 +59,47 @@ curl someurl.com/notes/motd
 curl someurl.com/notes/1
 ```
 
+For grouping notes, we can add notes to categories which is a collection of notes
+(Same as above, here we are just specifying note content, API picks an available noteId and returns it as response)
+
+```bash
+echo My 1st temporary note content | curl -F 'f:1=<-' someurl.com/categories/tmp
+# Created Note in category tmp! ID: 24
+
+echo My 2nd temporary note content | curl -F 'f:1=<-' someurl.com/categories/tmp
+# Created Note in category tmp! ID: 10
+```
+
+Viewing notes in a category
+
+```bash
+curl someurl.com/categories/tmp
+# ID: 24
+# My 1st temporary note content
+# ==================================================
+# ID: 10
+# My 2nd temporary note content
+# ==================================================
+
+curl 'someurl.com/categories/tmp?json=true'
+# [{"noteId": "24", "title":null, "content":"My 1st temporary note content", "categories":["tmp"], "username":"public", "created":"2019-01-01T00:00:00Z", "last_modified":"2019-01-01T00:00:00Z"}, {"noteId": "10", "title":null, "content":"My 2nd temporary note content", "categories":["tmp"], "username":"public", "created":"2019-01-01T00:00:00Z", "last_modified":"2019-01-01T00:00:00Z"}]
+```
+
+Deleting notes in a category
+
+```bash
+curl -X DELETE someurl.com/categories/tmp
+# Deleted all notes in category tmp!
+```
+
+PS:
+
+The note server may be hosted on a https server, to keep your command short without the https:// prefix you can make curl follow redirects:
+
+```bash
+curl -L someurl.com/notes
+```
+
 ## Endpoints
 
 ### /notes

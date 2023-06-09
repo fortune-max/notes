@@ -241,6 +241,12 @@ paths:
           required: true
           schema:
             type: string
+        - name: json
+          in: query
+          description: If to return response as JSON object or not
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: successful operation
@@ -250,6 +256,34 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Note'
+    post:
+      tags:
+        - category
+      summary: Add a new note to a specified category
+      description: Add a new note to a specified category
+      parameters:
+        - name: json
+          in: query
+          description: If to return response as JSON object or not
+          required: false
+          schema:
+            type: boolean
+      requestBody:
+        description: Create a new note with specified category
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Note'
+        required: true
+      responses:
+        '200':
+          description: Note created in category ${categoryId}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '400':
+          description: Invalid input
     delete:
       tags:
         - category

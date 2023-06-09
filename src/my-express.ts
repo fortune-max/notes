@@ -208,12 +208,45 @@ app.get('/categories', (req, res) => {
 app.get('/categories/:categoryName', (req, res) => {
   const { username } = JSON.parse(req.headers.authorization!);
   const { categoryName } = req.params;
+  const { json } = req.query;
   const query = { username, categories: [categoryName] };
   Note.find(query).select({ _id: 0, __v: 0}).then((notes) => {
     notes = notes.map((note) => {
       return note.toObject();
     });
-    res.send(JSON.stringify(notes, null, 4));
+    if (!notes.length)
+      return res.status(404).send('Category does not exist!\n');
+    if (json)
+      return res.send(JSON.stringify(notes, null, 4));
+    const separator = '='.repeat(50) + '\n';
+    const noteArr = notes.map((note) => {
+      const catgNote = (note.title ? note.title + '\n' + note.content : note.content).trim();
+      return `ID: ${note.noteId}\n${catgNote}\n${separator}`;
+    });
+    const noteConcat = noteArr.join('');
+    return res.send(noteConcat);
+  });
+});
+
+app.post('/categories/:categoryName', async (req, res) => {
+  const { username } = JSON.parse(req.headers.authorization!);
+  const { categoryName } = req.params;
+  const { json } = req.query;
+  const noteObj = parseNote(req);
+  const noteId = await getAvailableNoteId(username, highestNoteId);
+  highestNoteId = Math.max(highestNoteId, noteId);
+  if (!noteObj.content)
+    return res.status(400).send('Bad Request, empty note!\n');
+  const newNote = {
+    ...noteObj,
+    noteId,
+    username,
+    categories: [categoryName],
+    created: new Date(),
+    last_modified: new Date(),
+  };
+  Note.create(newNote).then((note) => {
+    res.send(json ? JSON.stringify(newNote, null, 4) : `Created Note in category ${categoryName}! ID: ${noteId}\n`);
   });
 });
 
@@ -223,8 +256,8 @@ app.delete('/categories/:categoryName', (req, res) => {
   const query = { username, categories: [categoryName] };
   Note.deleteMany(query).select({ _id: 0, __v: 0}).then((notes) => {
     if (!notes.deletedCount)
-      return res.status(404).send('Couldn\'t delete notes, does not exist!\n');
-    return res.status(200).send('Notes Deleted!\n');
+      return res.status(404).send('Couldn\'t delete notes, category does not exist!\n');
+    return res.status(200).send(`Deleted all notes in category ${categoryName}!\n`);
   });
 });
 
