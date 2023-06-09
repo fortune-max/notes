@@ -25,7 +25,7 @@ describe('Test /notes endpoint', () => {
         const responseJSON = JSON.parse(response.text);
         expect(response.statusCode).toBe(200);
         expect(Array.isArray(responseJSON)).toBe(true);
-        expect(responseJSON.length).toBe(2);
+        expect(responseJSON.length).toBe(3);
         expect(responseJSON[0].title).toBe('test title 1');
         done();
       });
@@ -210,11 +210,9 @@ describe('Test /categories endpoint', () => {
     request(app)
       .get('/categories/default')
       .then((response) => {
-        const responseJSON = JSON.parse(response.text);
         expect(response.statusCode).toBe(200);
-        expect(Array.isArray(responseJSON)).toBe(true);
-        expect(responseJSON.length).toBe(1);
-        expect(responseJSON[0].title).toBe('test title 1');
+        expect(response.text).toContain('test title 1\ntest content 1');
+        expect(response.text).toContain('test title 3\ntest content 3');
         done();
       });
   });
@@ -352,6 +350,20 @@ describe('Test json=true query param', () => {
           expect(note).toBe(null);
           done();
         });
+      });
+  });
+
+  test('get all notes for a category with JSON', (done) => {
+    request(app)
+      .get('/categories/default?json=true')
+      .then((response) => {
+        const responseJSON = JSON.parse(response.text);
+        expect(response.statusCode).toBe(200);
+        expect(Array.isArray(responseJSON)).toBe(true);
+        expect(responseJSON.length).toBe(2);
+        expect(responseJSON[0].title).toBe('test title 1');
+        expect(responseJSON[1].title).toBe('test title 3');
+        done();
       });
   });
 });
