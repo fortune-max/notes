@@ -6,7 +6,7 @@ What's more is it allows you to easily manage these notes from the command line,
 
 It also has support for categories, allowing you to easily group notes together. There are some handy categories which have additional functionality, such as the `tmp` category which allows you to create temporary notes which are automatically deleted after a certain amount of time.
 
-The API can be used while authenticated or unauthenticated. Unauthenticated users can only access public notes, while authenticated users can access both public and private notes.
+The API can be used while authenticated or unauthenticated. Unauthenticated users make requests as a universal guest account shared by all unauthenticated instances, which means other unauthenticated users can view, modify or delete notes you added to the universal guest account. This is okay for one-off pastes or non-sensitive information.
 
 Basic Authentication is used for authentication and to register a new user. The username and password are sent in the Authorization header as a base64 encoded string. The username and password are separated by a colon. The string is then prefixed with the string `Basic `.
 
