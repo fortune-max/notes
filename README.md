@@ -145,6 +145,10 @@ Returns a list of all current note categories.
 
 Returns a list of all notes in the given category.
 
+#### POST
+
+Add a note to the specified category, and return the random note ID assigned to it.
+
 #### DELETE
 
 Deletes all notes in the given category.
